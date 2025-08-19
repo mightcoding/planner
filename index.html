@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 min-h-screen">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">Simple Planner</h1>
+                <p class="text-sm text-gray-500 italic">made by Kuvanbakiyev</p>
+            </div>
+            
+            <div class="mb-8">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="taskInput" placeholder="Add a new task..." 
+                           class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
+                    <select id="categorySelect" 
+                            class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
+                        <option value="school">🎓 School</option>
+                        <option value="work">💼 Work</option>
+                        <option value="sport">⚽ Sport</option>
+                        <option value="personal">✨ Personal</option>
+                    </select>
+                    <button onclick="addTask()" 
+                            class="px-8 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
+                        Add Task
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+                <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl">🎓</div>
+                        <div>
+                            <h3 class="font-semibold">School</h3>
+                            <p class="text-sm opacity-90" id="schoolCount">0 tasks</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl">💼</div>
+                        <div>
+                            <h3 class="font-semibold">Work</h3>
+                            <p class="text-sm opacity-90" id="workCount">0 tasks</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl">⚽</div>
+                        <div>
+                            <h3 class="font-semibold">Sport</h3>
+                            <p class="text-sm opacity-90" id="sportCount">0 tasks</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl p-4 text-white shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="text-2xl">✨</div>
+                        <div>
+                            <h3 class="font-semibold">Personal</h3>
+                            <p class="text-sm opacity-90" id="personalCount">0 tasks</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                        Your Tasks
+                    </h2>
+                    <div id="taskList" class="space-y-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let taskId = 0;
+
+        const categoryColors = {
+            school: 'from-blue-100 to-blue-200 border-blue-300',
+            work: 'from-green-100 to-green-200 border-green-300',
+            sport: 'from-orange-100 to-orange-200 border-orange-300',
+            personal: 'from-pink-100 to-pink-200 border-pink-300'
+        };
+
+        const categoryIcons = {
+            school: '🎓',
+            work: '💼',
+            sport: '⚽',
+            personal: '✨'
+        };
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const categorySelect = document.getElementById('categorySelect');
+            const text = input.value.trim();
+            const category = categorySelect.value;
+            
+            if (text) {
+                tasks.push({
+                    id: taskId++,
+                    text: text,
+                    category: category,
+                    completed: false,
+                    createdAt: new Date()
+                });
+                input.value = '';
+                renderTasks();
+                updateCategoryCounts();
+            }
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                renderTasks();
+                updateCategoryCounts();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+            updateCategoryCounts();
+        }
+
+        function updateCategoryCounts() {
+            const counts = {
+                school: tasks.filter(t => t.category === 'school').length,
+                work: tasks.filter(t => t.category === 'work').length,
+                sport: tasks.filter(t => t.category === 'sport').length,
+                personal: tasks.filter(t => t.category === 'personal').length
+            };
+            
+            document.getElementById('schoolCount').textContent = `${counts.school} tasks`;
+            document.getElementById('workCount').textContent = `${counts.work} tasks`;
+            document.getElementById('sportCount').textContent = `${counts.sport} tasks`;
+            document.getElementById('personalCount').textContent = `${counts.personal} tasks`;
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <div class="text-4xl mb-4">📝</div>
+                        <p class="text-lg">No tasks yet</p>
+                        <p class="text-sm">Add your first task above!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            tasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = `flex items-center gap-4 p-4 bg-gradient-to-r ${categoryColors[task.category]} rounded-xl border-2 transition-all hover:scale-[1.02] hover:shadow-lg`;
+                
+                div.innerHTML = `
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask(${task.id})"
+                           class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500">
+                    <div class="text-2xl">${categoryIcons[task.category]}</div>
+                    <div class="flex-1">
+                        <span class="${task.completed ? 'line-through text-gray-500' : 'text-gray-800'} font-medium">
+                            ${task.text}
+                        </span>
+                        <div class="text-xs text-gray-500 mt-1 capitalize">
+                            ${task.category}
+                        </div>
+                    </div>
+                    <button onclick="deleteTask(${task.id})" 
+                            class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                `;
+                
+                taskList.appendChild(div);
+            });
+        }
+
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        updateCategoryCounts();
+        renderTasks();
+    </script>
+</body>
+</html>
